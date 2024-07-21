@@ -17,7 +17,7 @@ In the below steps, sometimes I typed some notes that I thought were useful when
     - GetResourceShareAssociations 
    
    I think these are good enough to do the project, later I can add more polices if I needed to...
-     - Note, I could alternatively attach the AdministratorAccess policy which will grants full access to all AWS services and resources, but I wanted to have granular control.
+     - Note, I could alternatively attach the AdministratorAccess policy which will grants full access to all AWS services and resources and this is generally the best approach, but I wanted to learn more granular polices, so every time I needed new policy I will just add it without mentioning that in this document.
 
   - Now I can log in to the IAM account and work from there.
 
@@ -75,12 +75,30 @@ I ran the command: aws iam get-user. (This command retrieves information about t
   - Public subnet: We store things that will likely be accessed from the internet like the EC2 instances. Also NAT Gateway, to allow instances in private subnets to access the internet while remaining inaccessible from the internet
   - Private subnet: Things that should not be accessed from the internet. For example, databases (RDS).
 
-  # AZ1 subnets:
+  # Creating AZ1 subnets:
   - To create the subnets for AZ1: Subnets -> Create subnet
   ![image](https://github.com/user-attachments/assets/b8ca49ea-d767-48a7-8014-bada1768c915)
   - Notes:
     - Dont forget to select the same AZ when creating the subnets.
     - Avoid overlapping the subnets IP ranges.
-  # AZ2 subnets:
+  # Creating AZ2 subnets:
   ![image](https://github.com/user-attachments/assets/2a2037e8-bba1-4c64-bfc1-d4192a742f27)
+  # Auto-Assign IP in Public Subnets:
+  When we enable the auto-assing IP for each public subnet in the VPC, each resource we launch in the subnet will automatically assigned a public IP. Which  simplifies the process of ensuring instances have internet access.
+  - To enable: VPC -> Pick the public subnet -> from actions select Edit subnet -> Enable auto-assign public IPv4 address.
+  - I did that for both public subnets.
+  # Public Subnets Route Table:
+  To make the public subnets public, we need to create route tables that have a route to the internet.
+  - To create the route table: VPC -> Route tables -> Create route table
+  - Then you can select the route table and click edit routes to add the route to the internet which is 0.0.0.0/0
+      - Notes:
+          - For the destination: 0.0.0.0/0 (Internet route). And for the target: Your IGW.
+          - Now any subnet will be public, when we attach it to this route table.
+  # Private subnets:
+  When you dont explicitly associate a subnet to a route table, this subnet will automatically be associated with the main route table. This main route table is local. In other words, a subnet is private by default since its associated with this local & main route table.
 
+    - As you can see in the below image, we have two route tables even though we only created one...
+  ![image](https://github.com/user-attachments/assets/fb48bf35-53e3-49ca-b9c1-52694a70bc8d)
+
+    - In the **subnets without explicit associations** you can see all the subnets that we didnt associate with a route table are associated with this main route table:
+  ![image](https://github.com/user-attachments/assets/2d34907c-0650-45d9-b117-4dd32d400ad9)
