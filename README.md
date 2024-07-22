@@ -102,3 +102,34 @@ I ran the command: aws iam get-user. (This command retrieves information about t
 
     - In the **subnets without explicit associations** you can see all the subnets that we didnt associate with a route table are associated with this main route table:
   ![image](https://github.com/user-attachments/assets/2d34907c-0650-45d9-b117-4dd32d400ad9)
+
+ # Setting up the NAT Gateway & Route table for the private subnets
+  Setting up a nat gateway is important to allow instances in private subnets to access the internet while remaining inaccessible from the internet. So we going to 
+ put the NAT Gateway in the public subnet as discussed earlier. Then we will create a route table that connect the private subnets to this NAT Gateway.
+ - To set it up: VPC -> NAT gateways -> Create NAT gateway. Connectivity type should be public, and Allocate Elastic IP.
+ - After creating the NAT Gateway, create a routing table in the edit routes add the destination and target, this time the target is the NAT gateway we just created:
+   ![image](https://github.com/user-attachments/assets/323ef060-5a91-4340-a0a4-a8d020a8937c)
+
+ - Notes:
+     - The NAT Gateway is always placed in the public subnet.
+     - Its best practice to create a NAT Gateway for each AZ, however for this project and to minimize cost, I only created one for all subnets.
+     - Dont forget to associate the private subnets to the route table we just created.
+
+# 8- Security Groups
+Security groups are the firewalls for our VPC. We will create 5 different security groups as follows:
+- Security group for the load balancer
+    - For http and https - ports 80 and 443.
+- Security group for the EC2
+    - Traffic coming from the CIDR of the VPC - port 22.
+- Security group for the web server
+    - http and https from the load balancer security group only.
+    - ssh (port 22) only if its coming from the EC2 security group.
+- Security group for the database (the RDS)
+    - Traffic from port 3306 if its coming from the web server.
+- Security group for EFS
+    - Traffic from port 2049 only if its coming from the web server.
+    - Traffic from port 22 if its coming from the EC2 endpoint security group. 
+
+![image](https://github.com/user-attachments/assets/55c11039-410a-4d60-8e57-27025ff33262)
+
+
