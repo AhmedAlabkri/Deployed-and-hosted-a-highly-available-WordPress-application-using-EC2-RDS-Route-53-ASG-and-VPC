@@ -181,13 +181,14 @@ This is why we will store our wordpress code in the EFS, so that any change will
  
 # 11- Create RDS Instance - In the private data subnet
 
-  # Subnet Group
+ # Subnet Group
     Before we create the RDS, we want to create the subnet group. This way we can specifiy which subnet we want to create our database in.
     - Notes:
-        - Under **add subnet** in the subnet group creation process, we can specifiy the subnets that we want to create our DB in. We will select the private data subnet.
-    
-    ![image](https://github.com/user-attachments/assets/226944ba-7829-44b3-9ee4-a9787b4d82f4)
-  # RDS
+        - Under **add subnet** in the subnet group creation process, we can specifiy the subnets that we want to create our DB in. We will 
+     select the private data subnet.
+        ![image](https://github.com/user-attachments/assets/226944ba-7829-44b3-9ee4-a9787b4d82f4)
+ # RDS
     - Notes:
         - Save the master name and password somewhere before continuing.
-    
+    ![image](https://github.com/user-attachments/assets/bb60d32c-2836-4d45-a2a6-ec96a6b381b0)
+
