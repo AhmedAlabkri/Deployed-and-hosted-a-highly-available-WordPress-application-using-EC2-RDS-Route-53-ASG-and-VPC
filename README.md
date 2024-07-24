@@ -132,4 +132,62 @@ Security groups are the firewalls for our VPC. We will create 5 different securi
 
 ![image](https://github.com/user-attachments/assets/55c11039-410a-4d60-8e57-27025ff33262)
 
+# 9- Create the EC2 Instance Connect Endpoint
+With an EC2 Instance Connect Endpoint (EIC), you can connect to instances within your VPC without needing SSH, a public IP address, or a bastion host.
 
+![image](https://github.com/user-attachments/assets/74dfadd6-2322-4cf8-922d-e55237b43c9f)
+- Note: Its important to place this endpoint in a private subnet.
+
+  # Launch an EC2 Instance - To test whether we can connect to it through the EICE
+  - Notes:
+      - Select proceed without key pair, since we want to test the EICE.
+      - Place it in any private subnet, similar to the EICE.
+      - For the security group, select the Web server security group we created in step 8.
+  # To test:
+  - Select the EC2 instance we just created -> Connect -> Connect using EC2 Instance Connect Endpoint. And select the EICE and connect.
+      - I got an error:
+    ![image](https://github.com/user-attachments/assets/92023327-52f5-4bcd-9f94-f2576df7daed)
+
+  - From the error message, it was clear that the problem was related to the security group configuration that we attached to it which is the EICE security group. To resolve this, I decided to inspect the security group settings.
+  - It turned out that the problem was the outbound rule I created, for the CIDR range I accidentally used the Ip range: 0.0.0.0/16 instead of 10.0.0.0/16(The Ip I should use is the one I created my VPC with, you can find that in the column IPv4 CIDR in your VPC):
+    ![image](https://github.com/user-attachments/assets/d18b8c73-8383-4328-8956-4afd19e62ffd)
+
+  - Now after we solved the problem, we can run the following command to test: sudo yum update -y
+    - The output means, there is no package to install currently. This mean the test was successful.
+    ![image](https://github.com/user-attachments/assets/790b952d-d9c6-47f3-b371-a8221b55291f)
+
+  # Test the EC2 instance Using AWS CLI
+  - To test use this command in the terminal: aws ec2-instance-connect ssh --instance-id <Put the instance Id>
+    - The test was successful too:
+    ![image](https://github.com/user-attachments/assets/d364c55e-6678-4444-9824-2f3de7ef291c)
+
+  - Using the command: sudo yum install nano -y we can test whether we can download packages in the EC2 instance or not. This command will install the text editor nano.
+    - The test was successful:
+    ![image](https://github.com/user-attachments/assets/fd64c473-460c-45d5-8db3-0325f7b4012f)
+  - We can also test if we can download the Apache server: sudo yum install httpd -y
+
+  - ***Now we have confirmed that we can SSH to our EC2 instance using the EICE from both the managment console and from the CLI command.***
+  - The last thing we need to do here, is to terminate the EC2 after we done with the testing...
+
+# 10- Create EFS
+EFS Allows multiple EC2 instances to access the file system concurrently, making it ideal for scenarios that require shared storage, such as web serving, which is our use case here. In this case if we used EBS instead, any change we make to one EC2 instance would not be reflected in the other EC2 instances. leading to inconsistency in the shared data.
+
+This is why we will store our wordpress code in the EFS, so that any change will be made to it, will be reflected in all EC2 instances.
+
+- Notes:
+    - Store the mount in the private data subnet for both AZ.
+    - For the mount, make sure to select the EFS security group.
+    - The mount target is essentially setting up a gateway for the EC2 instances to connect to the EFS. In our case, we will mount this EFS to our servers.
+ 
+# 11- Create RDS Instance - In the private data subnet
+
+  # Subnet Group
+    Before we create the RDS, we want to create the subnet group. This way we can specifiy which subnet we want to create our database in.
+    - Notes:
+        - Under **add subnet** in the subnet group creation process, we can specifiy the subnets that we want to create our DB in. We will select the private data subnet.
+    
+    ![image](https://github.com/user-attachments/assets/226944ba-7829-44b3-9ee4-a9787b4d82f4)
+  # RDS
+    - Notes:
+        - Save the master name and password somewhere before continuing.
+    
