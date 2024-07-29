@@ -192,3 +192,33 @@ This is why we will store our wordpress code in the EFS, so that any change will
         - Save the master name and password somewhere before continuing.
     ![image](https://github.com/user-attachments/assets/bb60d32c-2836-4d45-a2a6-ec96a6b381b0)
 
+# 12- Load Balancer
+We will place our server (EC2 instance) in the private subnet to increase security. Therefore, we need to create a target group to conncet the load balancer to this EC2 instance. 
+So we will do these steps:
+- EC2 instance placed in private subnet.
+- Target group and register the EC2 instance into it.
+- Create the application load balancer in the public subnet.
+- Configure the application load balancer to use the target group.
+# Create Target group:
+![image](https://github.com/user-attachments/assets/bc557252-2a87-44bc-bee9-64f6be0b901e)
+
+# Create EC2 instance:
+- Notes:
+    - We will place this EC2 instance in the web private subnet AZ1, its also possible to place it in the web private subnet AZ2.
+    - Since we are using the EC2 endpoint (that we created in step #9), we dont need a key pair when creating the EC2.
+    - Make sure to select the correct security group (the web server security group).
+ ![image](https://github.com/user-attachments/assets/936eca3a-8689-446e-a11a-9ecec3eecad5)
+
+# Register EC2 instance to the Target Group:
+- To do this: EC2 -> Target groups(select the target group we just created) -> Register targets(select the EC2 instance).
+![image](https://github.com/user-attachments/assets/50927d44-369d-4bc5-a644-557ecc1f4a26)
+
+# Create the Application Load Balancer:
+- From: EC2 -> Load balancers -> ALB
+- Notes:
+    - ALBs are designed to handle HTTP and HTTPS traffic, which is ideal for our web application
+    - In the Network mapping section, make sure to select the public subnet, an ALB is always asked to have the reach to a public subnet.
+    - Select the ALB security group we created.
+![image](https://github.com/user-attachments/assets/594c49bd-4b47-44ec-a8fb-10fa29c4c4a0)
+
+      
