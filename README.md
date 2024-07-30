@@ -221,4 +221,82 @@ So we will do these steps:
     - Select the ALB security group we created.
 ![image](https://github.com/user-attachments/assets/594c49bd-4b47-44ec-a8fb-10fa29c4c4a0)
 
-      
+# 13- Installing a Website on an EC2 Instance
+In order to install any application in your server, you first need to find the correct documentation that gives you the installation steps and commands that you will need to run. In our case I made a google search to find these links:
+- The installation proccess with the specific commands I will need:
+https://docs.aws.amazon.com/linux/al2023/ug/hosting-wordpress-aml-2023.html
+- Wordpress requirements:
+https://wordpress.org/about/requirements/
+
+# Install Wordpress:
+
+# Setup WordPress on Amazon Linux 2023 (AL2023)
+
+```sh
+# Switch to root user
+sudo su
+
+# Update system packages
+sudo dnf update -y
+
+# Create HTML directory
+sudo mkdir -p /var/www/html
+
+# Set environment variable for EFS DNS name
+EFS_DNS_NAME=
+
+# Mount the EFS to the HTML directory
+sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport "$EFS_DNS_NAME":/ /var/www/html
+
+# Install and start Apache web server
+sudo dnf install -y httpd
+sudo systemctl enable httpd
+sudo systemctl start httpd
+
+# Install PHP 8 and necessary extensions for WordPress
+sudo dnf install -y php php-cli php-cgi php-curl php-mbstring php-gd php-mysqlnd php-gettext php-json php-xml php-fpm php-intl php-zip php-bcmath php-ctype php-fileinfo php-openssl php-pdo php-tokenizer
+
+# Install MySQL Community Repository
+sudo wget https://dev.mysql.com/get/mysql80-community-release-el9-1.noarch.rpm
+sudo dnf install -y mysql80-community-release-el9-1.noarch.rpm
+sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
+sudo dnf repolist enabled | grep "mysql.*-community.*"
+sudo dnf install -y mysql-community-server
+
+# Start and enable MySQL server
+sudo systemctl start mysqld
+sudo systemctl enable mysqld
+
+# Set permissions
+sudo usermod -a -G apache ec2-user
+sudo chown -R ec2-user:apache /var/www
+sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
+sudo find /var/www -type f -exec sudo chmod 0664 {} \;
+sudo chown apache:apache -R /var/www/html
+
+# Download and extract WordPress files
+wget https://wordpress.org/latest.tar.gz
+tar -xzf latest.tar.gz
+sudo cp -r wordpress/* /var/www/html/
+
+# Create the wp-config.php file
+sudo cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
+
+# Edit the wp-config.php file to set database details
+sudo nano /var/www/html/wp-config.php
+
+# Restart the webserver
+sudo systemctl restart httpd
+```
+
+- Notes:
+    - Like we did in step #9, connect to the EC2 using the EICE, and run each command.
+    - For  ```EFS_DNS_NAME=``` copy your EFS DNS name and paste it after the ```=```.
+    - After running ```sudo nano /var/www/html/wp-config.php``` you will have to fill in your information:
+```define('DB_NAME', 'wordpress_db');
+define('DB_USER', 'wordpress_user');
+define('DB_PASSWORD', 'password');
+define('DB_HOST', 'localhost');
+```
+
+
