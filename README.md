@@ -293,10 +293,35 @@ sudo systemctl restart httpd
     - Like we did in step #9, connect to the EC2 using the EICE, and run each command.
     - For  ```EFS_DNS_NAME=``` copy your EFS DNS name and paste it after the ```=```.
     - After running ```sudo nano /var/www/html/wp-config.php``` you will have to fill in your information:
-```define('DB_NAME', 'wordpress_db');
+```
+define('DB_NAME', 'wordpress_db');
 define('DB_USER', 'wordpress_user');
 define('DB_PASSWORD', 'password');
 define('DB_HOST', 'localhost');
 ```
+    - From: EC2 -> Target groups -> Select your Target Group -> Then check that your Target group is healthy:
+    
+    ![image](https://github.com/user-attachments/assets/15fb2261-6985-48a6-b18a-0a5a7cf2ba2e)
 
 
+# Open Wordpress:
+    - From the Load balancer details, copy your DNS name and paste it in new browse page:
+    
+    ![image](https://github.com/user-attachments/assets/5f565819-4216-4db8-bb69-c7f191cb1749)
+    - After Signning in:
+    ![image](https://github.com/user-attachments/assets/89b01f92-a307-42e1-8690-a5066fb8beaa)
+
+# 14- DNS Configuration
+To Start the DNS configuration, we will first need to register our domain name in route 53.
+
+# Register a New Domain Name in Route 53:
+
+- Route 53 -> Registered domains -> Register domains
+
+![image](https://github.com/user-attachments/assets/25baf4ad-7e34-40bb-83b2-9f085cfc54fd)
+
+- The domain name under progress, you might get a Domain registration failed meassage, in this case make sure you turn on 2-factor from IAM. 
+![image](https://github.com/user-attachments/assets/e321a3a4-fb52-4517-b960-9677799a1bf6)
+
+# Creating a record set:
+Creating record sets in Route 53 allows you to manage DNS settings, ensuring high availability, scalability, and efficient traffic management for your domain.
