@@ -320,8 +320,80 @@ To Start the DNS configuration, we will first need to register our domain name i
 
 ![image](https://github.com/user-attachments/assets/25baf4ad-7e34-40bb-83b2-9f085cfc54fd)
 
-- The domain name under progress, you might get a Domain registration failed meassage, in this case make sure you turn on 2-factor from IAM. 
-![image](https://github.com/user-attachments/assets/e321a3a4-fb52-4517-b960-9677799a1bf6)
+- The domain name under progress, you might get a Domain registration failed meassage, in this case make sure you turn on MFA for your account, for me this works..
+- Usually it takes up to 15 minutes:
+![image](https://github.com/user-attachments/assets/54c40aa5-d8a5-4f7b-9fd8-48aeb91644c2)
+
+![image](https://github.com/user-attachments/assets/83cdcc9b-778f-4188-b284-97795d82be1e)
+
+
 
 # Creating a record set:
-Creating record sets in Route 53 allows you to manage DNS settings, ensuring high availability, scalability, and efficient traffic management for your domain.
+When you create a domain name, it is not automatically attached to your load balancer. You need to explicitly link your domain name to your load balancer's DNS name using a DNS record set.
+
+- To create the record set: Route 53 -> Hosted zones -> your domain name -> Create record
+- These are the settings and configurations:
+  ![image](https://github.com/user-attachments/assets/66c019a4-eb5d-4828-b0d9-ac5949e22721)
+    - Notes:
+        - Pick the Region you created your Load balancer in, in my case it is US EAST OHIO.
+        - Since we created a domain name, you should go to your admin page in wordpress and update your url to the domain name from the settings.
+        - You should receive an email from AWS to verify your Domain name, if not verified, the domain name will be suspended.
+
+# Creating SSL Certificate (Secure Sockets Layer):
+Which is a digital certificate that encrypts data transmitted between a user's web browser and a website, ensuring that any information exchanged (like passwords or credit card numbers) is protected from eavesdroppers.
+
+- To create: AWS Certificate Manager -> Certificates -> Request certificate -> Request public certificate
+    - Notes:
+        - You can click **Add another name to this certificate** and add a wild card, for example *.example.com
+![image](https://github.com/user-attachments/assets/7864d584-ffcb-487e-865f-2830d3b5793c)
+Now we have to create a record set in route 53 to validate that this domain name is belong to us, you can do that by clicking **Create records in Route 53**.
+
+![image](https://github.com/user-attachments/assets/06b66b1e-6947-4bb8-b09d-e15c07a0256e)
+
+# Create an HTTPS Listener:
+Now we will use the SSL certificate to encrypt the data exchanged between the user and the website. In general SSL certificate is required to enable HTTPS listener. This is why we didnt create it earlier.
+- Add listener: You can do that from the load balancer dashboard.
+    - For the routing actions, select forward to target groups and select the dev target group that we created above.
+    - Make sure you select **(from ACM)** in the **Default SSL/TLS server certificate** section.
+
+![image](https://github.com/user-attachments/assets/b572dac0-1955-4c70-8a47-492eeb56d8b1)
+- Notes:
+    - Select the http listener and change its settings to **redirect to URL** and **FULL URL**. As you might know, the http is insecure.
+    - This is also why we added port 443 in our Load balancer security group.
+![image](https://github.com/user-attachments/assets/6f47b1d2-b557-4131-99ce-c7a0d596a93d)
+
+# Modify WP CONFIG file:
+We will add a code to the file that tells the server that we want to redirect from http to https.
+
+```
+/* SSL Settings */
+define('FORCE_SSL_ADMIN', true);
+
+// Get true SSL status from AWS load balancer
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+  $_SERVER['HTTPS'] = '1';
+}
+```
+- I tried to explain each line of code here:
+
+```
+define('FORCE_SSL_ADMIN', true);
+```
+
+- Ensures all traffic to the WordPress admin area is encrypted over HTTPS, protecting sensitive data like login credentials from interception.
+
+```
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+  $_SERVER['HTTPS'] = '1';}
+```
+
+- Checks if the request was initially made over HTTPS before reaching the load balancer and sets the connection as secure within WordPress to avoid mixed content issues.
+
+- Notes:
+    - Connect to the EICE and run the following commands:
+        - ```sudo su```
+        - ```cd /var/www/html/```
+        - ```vi wp-config.php```
+        Then add the above code:
+![image](https://github.com/user-attachments/assets/65a8a90c-ad0a-4860-9518-4b073822efcf)
+        - Dont forget to also run: ```service httpd restart``` after you update your server, to restart the apache service.
