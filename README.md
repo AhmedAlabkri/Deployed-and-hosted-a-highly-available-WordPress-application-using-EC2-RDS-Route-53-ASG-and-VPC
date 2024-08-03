@@ -358,7 +358,7 @@ Now we will use the SSL certificate to encrypt the data exchanged between the us
 
 ![image](https://github.com/user-attachments/assets/b572dac0-1955-4c70-8a47-492eeb56d8b1)
 - Notes:
-    - Select the http listener and change its settings to **redirect to URL** and **FULL URL**. As you might know, the http is insecure.
+    - Select the http listener and change its settings to **redirect to URL** and **FULL URL**. With this setting, any request sent to http will be redirected to https. As you may know, the http is insecure.
     - This is also why we added port 443 in our Load balancer security group.
 ![image](https://github.com/user-attachments/assets/6f47b1d2-b557-4131-99ce-c7a0d596a93d)
 
@@ -397,3 +397,18 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROT
         Then add the above code:
 ![image](https://github.com/user-attachments/assets/65a8a90c-ad0a-4860-9518-4b073822efcf)
         - Dont forget to also run: ```service httpd restart``` after you update your server, to restart the apache service.
+
+- Even though I only typed the domain name in the URL, the server directed me to the https port:
+  ![image](https://github.com/user-attachments/assets/dc62f492-99c5-4827-b563-65fd71d27b8b)
+
+# 15- Availability and tolerance - Auto Scaling Group
+To increase the availability, we will create an auto scaling group that will add/remove servers as needed. To do that, this is the plan we will follow for this section:
+1- Terminate the EC2 that we created manually. We will do this because we want the auto scaling group to create our instance.
+2- Create shell script for the Launch templete.
+3- Create Launch Templete with all neccessary EC2 configurations.
+4- Create Auto Scaling group.
+
+# Termination of EC2:
+EC2-> instances-> Selecet the EC2 instance -> Instance state -> Terminate.
+
+# Create shell script:
