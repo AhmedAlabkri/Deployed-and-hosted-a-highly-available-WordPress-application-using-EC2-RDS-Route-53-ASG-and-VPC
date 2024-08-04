@@ -402,13 +402,100 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROT
   ![image](https://github.com/user-attachments/assets/dc62f492-99c5-4827-b563-65fd71d27b8b)
 
 # 15- Availability and tolerance - Auto Scaling Group
-To increase the availability, we will create an auto scaling group that will add/remove servers as needed. To do that, this is the plan we will follow for this section:
+To increase availability, we will create an Auto Scaling group that will automatically add or remove servers as needed. This ensures that our application can handle varying traffic loads and remains resilient against failures. Every time a new EC2 instance is added, it will automatically mount the EFS, as it contains the WordPress code. For more details about EFS, refer to step #10.  This is the plan we will follow for this section:
 1- Terminate the EC2 that we created manually. We will do this because we want the auto scaling group to create our instance.
 2- Create shell script for the Launch templete.
-3- Create Launch Templete with all neccessary EC2 configurations.
+3- Create Launch Template with all neccessary EC2 configurations.
 4- Create Auto Scaling group.
 
 # Termination of EC2:
 EC2-> instances-> Selecet the EC2 instance -> Instance state -> Terminate.
 
-# Create shell script:
+# Create Shell Script:
+Recall from the WordPress documentation URL in step #13, the requirments that we need for the installing of WordPress are: PHP version 7.4 or greater. MySQL version 8.0 or greater OR MariaDB version 10.5 or greater and HTTPS support.
+Therefore this shell script will be prepared with these dependencies. As well as the mounting to the EFS:
+
+```
+#!/bin/bash
+
+# update the software packages on the ec2 instance 
+sudo yum update -y
+
+# install the apache web server, enable it to start on boot, and then start the server immediately
+sudo yum install -y httpd
+sudo systemctl enable httpd 
+sudo systemctl start httpd
+
+# install php 8 along with several necessary extensions for wordpress to run
+sudo dnf install -y \
+php \
+php-cli \
+php-cgi \
+php-curl \
+php-mbstring \
+php-gd \
+php-mysqlnd \
+php-gettext \
+php-json \
+php-xml \
+php-fpm \
+php-intl \
+php-zip \
+php-bcmath \
+php-ctype \
+php-fileinfo \
+php-openssl \
+php-pdo \
+php-tokenizer
+
+# install the mysql version 8 community repository
+sudo wget https://dev.mysql.com/get/mysql80-community-release-el9-1.noarch.rpm 
+#
+# install the mysql server
+sudo dnf install -y mysql80-community-release-el9-1.noarch.rpm 
+sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
+sudo dnf repolist enabled | grep "mysql.*-community.*"
+sudo dnf install -y mysql-community-server 
+#
+# start and enable the mysql server
+sudo systemctl start mysqld
+sudo systemctl enable mysqld
+
+# environment variable
+EFS_DNS_NAME=fs-0573e48ddbfb740c3.efs.us-east-2.amazonaws.com
+
+# mount the efs to the html directory 
+echo "$EFS_DNS_NAME:/ /var/www/html nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" >> /etc/fstab
+mount -a
+
+# set permissions
+chown apache:apache -R /var/www/html
+
+# restart the webserver
+sudo service httpd restart
+```
+
+# Create Launch template:
+To launch the template: EC2 -> Launch template
+- Notes:
+    - Select the Auto Scaling guidance checkbox.
+    - Under the **Advanced details** section, in the User data box, paste your script.
+    - Dont forget to update the EFS DNS name in the script. You can find it in your EFS.
+![image](https://github.com/user-attachments/assets/fc849f2c-170c-44a7-89a2-32f1b99533a9)
+
+# Create Auto Scaling group:
+To create: EC2 -> Auto Scaling groups
+- Notes:
+    - Select the private web subnet AZ1 and AZ2.
+    - Dont forget to select the VPC that we created for the project.
+    - Select the **Turn on Elastic Load Balancing health checks** checkbox.
+    - Select the **Enable group metrics collection within CloudWatch** checkbox.
+ 
+  ![image](https://github.com/user-attachments/assets/585d6654-77bd-4f2d-89b6-9789e41fe379)
+    - As you can see in the above image, the desired capacity is the number of instances that we want to mantain in general, whereas for the scaling limits, this is basically boundry that we can set.
+  
+    - For the SNS notification, its optional but if you want to add it. Simply create a topic first then proceed   
+
+  ![image](https://github.com/user-attachments/assets/46bfc62e-ccc1-41b9-8123-f7988691fd8b)
+    - After we done creating the ASG, in the instances page we will see two EC2 instances that were created. This is because for the desired capacity we did choose to put 2.
+
