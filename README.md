@@ -494,8 +494,24 @@ To create: EC2 -> Auto Scaling groups
   ![image](https://github.com/user-attachments/assets/585d6654-77bd-4f2d-89b6-9789e41fe379)
     - As you can see in the above image, the desired capacity is the number of instances that we want to mantain in general, whereas for the scaling limits, this is basically boundry that we can set.
   
-    - For the SNS notification, its optional but if you want to add it. Simply create a topic first then proceed   
+    - For the SNS notification, its optional but if you want to add it. Simply create a topic first then you should receive AWS email to confirm.   
 
   ![image](https://github.com/user-attachments/assets/46bfc62e-ccc1-41b9-8123-f7988691fd8b)
     - After we done creating the ASG, in the instances page we will see two EC2 instances that were created. This is because for the desired capacity we did choose to put 2.
+
+# Making sure the website works:
+To make sure the website works, we need to check few things:
+
+1- EC2 instances are in the target group and both are healthy.
+![Screenshot 2024-08-04 073758](https://github.com/user-attachments/assets/e54f7aa4-4f13-4445-a2fd-fff499403a73)
+
+2- You can access the website using the domain name.
+![Screenshot 2024-08-04 074051](https://github.com/user-attachments/assets/9d37971b-43b1-4993-90a0-de505e68f3b6)
+
+# Making sure the auto scaling group works:
+To test the ASG, we can simply terminate one EC2 instance. Since we sat the desired capacity to 2, when we terminate one instance, the auto scaling group should create another EC2 instance automatically. So lets test that:
+
+- As you can see it works:
+![combined_image](https://github.com/user-attachments/assets/0114efe6-d601-4eef-b62a-cd2c5834410e)
+
 
