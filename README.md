@@ -527,4 +527,25 @@ Currently the website works perfectly fine, and I will just add a WordPress temp
 
 - ASG: The reason behind deleting the ASG first, is to avoid automatically creating the instances. Also reminder that when you delete the ASG the EC2 instances that currently running will be removed too.
   ![image](https://github.com/user-attachments/assets/e16d9bea-10c4-45f7-a396-5a1cea07b446)
-- 
+- ALB
+  ![image](https://github.com/user-attachments/assets/77ea2c66-4ca2-4d2b-bf70-3326e2221a2e)
+- Target group
+  ![image](https://github.com/user-attachments/assets/b5f54cbf-686d-4204-8c6b-e03fc1cd204c)
+- EFS
+  ![image](https://github.com/user-attachments/assets/df1f7853-eba5-4233-ae20-f527cc1e4fc8)
+- RDS: Will take 5-10 minutes to delete.
+  ![image](https://github.com/user-attachments/assets/bc2ef922-bd7c-42aa-ae62-965356a87ad9)
+- Subnets group
+  ![image](https://github.com/user-attachments/assets/f7a4f9d3-9643-4906-b135-33efb3f26a98)
+- Nat Gateway
+  ![image](https://github.com/user-attachments/assets/38b5daa6-a5e0-422a-87d8-745a5d14340b)
+- Release the Elastic IP
+  ![image](https://github.com/user-attachments/assets/81b58f59-7f53-4e8c-bcc4-c04f337365ea)
+- EC2 Instance Endpoints
+  ![image](https://github.com/user-attachments/assets/efda5296-9f2c-4ab7-8277-191de44441de)
+- Secuirty groups(DB, EFS, WEB-SERVER, EICE, ALB)
+  ![image](https://github.com/user-attachments/assets/3434bc44-ba33-400f-b004-7a081dd8a40d)
+- VPC
+  ![image](https://github.com/user-attachments/assets/0b57d99f-1cc5-423e-a46b-e50e3258ab21)
+
+
