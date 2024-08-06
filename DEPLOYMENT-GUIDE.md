@@ -9,19 +9,7 @@ In the below steps, sometimes I typed some notes that I thought were useful when
 # 1- IAM user
 - Firstly I created an IAM user for myself, to enhance security. Its usually better to avoid using the root user account.
 - To access the IAM page, just type IAM in the search bar on the AWS console.
--  For the polices, these are the list of polices that I attached to my IAM account:
-    - AmazonEC2FullAccess
-    - AmazonRDSFullAccess
-    - AmazonRoute53FullAccess
-    - AmazonVPCFullAccess
-    - AutoScalingFullAccess
-    - CloudWatchFullAccess
-    - ElasticLoadBalancingFullAccess
-    - AmazonRoute53ResolverFullAccess
-    - GetResourceShareAssociations 
-   
-   I think these are good enough to do the project, later I can add more polices if I needed to...
-     - Note, I could alternatively attach the AdministratorAccess policy which will grants full access to all AWS services and resources and this is generally the best approach, but I wanted to learn more granular polices, so every time I needed new policy I will just add it without mentioning that in this document.
+-  For the polices, the only policy that we need to attach to IAM account is the **AdministratorAccess** policy which will grants full access to all AWS services and resources.
 
   - Now I can log in to the IAM account and work from there.
 
@@ -551,5 +539,7 @@ Currently the website works perfectly fine, and I will just add a WordPress temp
   ![image](https://github.com/user-attachments/assets/3434bc44-ba33-400f-b004-7a081dd8a40d)
 - VPC
   ![image](https://github.com/user-attachments/assets/0b57d99f-1cc5-423e-a46b-e50e3258ab21)
+- I will also delete the IAM user:
+  ![image](https://github.com/user-attachments/assets/40778292-4a09-479a-a233-75327f8a0e9d)
 
 
