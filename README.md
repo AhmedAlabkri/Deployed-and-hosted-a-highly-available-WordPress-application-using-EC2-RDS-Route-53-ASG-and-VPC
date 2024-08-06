@@ -515,3 +515,16 @@ To test the ASG, we can simply terminate one EC2 instance. Since we sat the desi
 ![combined_image](https://github.com/user-attachments/assets/0114efe6-d601-4eef-b62a-cd2c5834410e)
 
 
+----------
+
+Currently the website works perfectly fine, and I will just add a WordPress templete to make the website somewhat presentable, although this is not related to the project..
+
+![image](https://github.com/user-attachments/assets/75e14db6-9cdd-4aa1-92de-9d944420c50f)
+
+----------
+
+# Deleting the resources
+
+- ASG: The reason behind deleting the ASG first, is to avoid automatically creating the instances. Also reminder that when you delete the ASG the EC2 instances that currently running will be removed too.
+  ![image](https://github.com/user-attachments/assets/e16d9bea-10c4-45f7-a396-5a1cea07b446)
+- 
