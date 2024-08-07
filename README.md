@@ -4,6 +4,7 @@ This project demonstrates how to deploy and host a highly available WordPress ap
 
 ## Project Overview
 
+
 The primary goal of this project is to host a WordPress website on AWS, utilizing various AWS services for optimal performance and reliability. The infrastructure includes:
 
 - **Virtual Private Cloud (VPC)**: Configured with public and private subnets across two availability zones for improved reliability and fault tolerance.
@@ -21,6 +22,12 @@ The primary goal of this project is to host a WordPress website on AWS, utilizin
 - **Certificate Manager**: Secures application communications with SSL/TLS certificates.
 - **Route 53**: Manages DNS records for domain registration.
 - **Simple Notification Service (SNS)**: Sends alerts about Auto Scaling Group activities.
+
+## Architecture Overview
+
+Below is the architecture diagram of the project, which illustrates the three-tier setup on AWS:
+
+![WordPressApplication drawio](https://github.com/user-attachments/assets/c556ee8b-78b5-4bcb-afdb-2b78954cd726)
 
 ## Deployment Steps
 
