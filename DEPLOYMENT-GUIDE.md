@@ -401,61 +401,73 @@ sudo systemctl restart httpd
 
   ![image](https://github.com/user-attachments/assets/89b01f92-a307-42e1-8690-a5066fb8beaa)
 
-# 14- DNS Configuration
-To Start the DNS configuration, we will first need to register our domain name in route 53.
+## 14. DNS Configuration
 
-# Register a New Domain Name in Route 53:
+To start the DNS configuration, we will first need to register our domain name in Route 53.
 
-- Route 53 -> Registered domains -> Register domains
+### Register a New Domain Name in Route 53
 
-![image](https://github.com/user-attachments/assets/25baf4ad-7e34-40bb-83b2-9f085cfc54fd)
+- **Steps:** Route 53 -> Registered domains -> Register domains
 
-- The domain name under progress, you might get a Domain registration failed meassage, in this case make sure you turn on MFA for your account, for me this works..
-- Usually it takes up to 15 minutes:
-![image](https://github.com/user-attachments/assets/54c40aa5-d8a5-4f7b-9fd8-48aeb91644c2)
+  ![image](https://github.com/user-attachments/assets/25baf4ad-7e34-40bb-83b2-9f085cfc54fd)
 
-![image](https://github.com/user-attachments/assets/83cdcc9b-778f-4188-b284-97795d82be1e)
+- The domain name registration is in progress. You might get a **Domain registration failed** message. If this happens, ensure that you have Multi-Factor Authentication (MFA) turned on for your account; this worked for me.
+- The process usually takes up to 15 minutes:
 
+  ![image](https://github.com/user-attachments/assets/54c40aa5-d8a5-4f7b-9fd8-48aeb91644c2)
 
+  ![image](https://github.com/user-attachments/assets/83cdcc9b-778f-4188-b284-97795d82be1e)
 
-# Creating a record set:
+### Creating a Record Set
+
 When you create a domain name, it is not automatically attached to your load balancer. You need to explicitly link your domain name to your load balancer's DNS name using a DNS record set.
 
-- To create the record set: Route 53 -> Hosted zones -> your domain name -> Create record
-- These are the settings and configurations:
+- **To create the record set:** Route 53 -> Hosted zones -> Your domain name -> Create record
+- **Settings and configurations:**
+
   ![image](https://github.com/user-attachments/assets/66c019a4-eb5d-4828-b0d9-ac5949e22721)
-    - Notes:
-        - Pick the Region you created your Load balancer in, in my case it is US EAST OHIO.
-        - Since we created a domain name, you should go to your admin page in wordpress and update your url to the domain name from the settings.
-        - You should receive an email from AWS to verify your Domain name, if not verified, the domain name will be suspended.
 
-# Creating SSL Certificate (Secure Sockets Layer):
-Which is a digital certificate that encrypts data transmitted between a user's web browser and a website, ensuring that any information exchanged (like passwords or credit card numbers) is protected from eavesdroppers.
+  - **Notes:**
+    - Pick the Region where you created your Load balancer. In my case, it is US EAST OHIO.
+    - Since we created a domain name, you should go to your admin page in WordPress and update your URL to the domain name from the settings.
+    - You should receive an email from AWS to verify your domain name. If not verified, the domain name will be suspended.
 
-- To create: AWS Certificate Manager -> Certificates -> Request certificate -> Request public certificate
-    - Notes:
-        - You can click **Add another name to this certificate** and add a wild card, for example *.example.com
-![image](https://github.com/user-attachments/assets/7864d584-ffcb-487e-865f-2830d3b5793c)
-Now we have to create a record set in route 53 to validate that this domain name is belong to us, you can do that by clicking **Create records in Route 53**.
+### Creating SSL Certificate (Secure Sockets Layer)
+
+An SSL certificate is a digital certificate that encrypts data transmitted between a user's web browser and a website, ensuring that any information exchanged (like passwords or credit card numbers) is protected from eavesdroppers.
+
+- **To create:** AWS Certificate Manager -> Certificates -> Request certificate -> Request public certificate
+
+  - **Notes:**
+    - You can click **Add another name to this certificate** and add a wildcard, for example, `*.example.com`.
+
+  ![image](https://github.com/user-attachments/assets/7864d584-ffcb-487e-865f-2830d3b5793c)
+
+Now, we have to create a record set in Route 53 to validate that this domain name belongs to us. You can do that by clicking **Create records in Route 53**.
 
 ![image](https://github.com/user-attachments/assets/06b66b1e-6947-4bb8-b09d-e15c07a0256e)
 
-# Create an HTTPS Listener:
-Now we will use the SSL certificate to encrypt the data exchanged between the user and the website. In general SSL certificate is required to enable HTTPS listener. This is why we didnt create it earlier.
-- Add listener: You can do that from the load balancer dashboard.
-    - For the routing actions, select forward to target groups and select the dev target group that we created above.
-    - Make sure you select **(from ACM)** in the **Default SSL/TLS server certificate** section.
+### Create an HTTPS Listener
+
+Now we will use the SSL certificate to encrypt the data exchanged between the user and the website. An SSL certificate is required to enable the HTTPS listener, which is why we didn't create it earlier.
+
+- **Add listener:** You can do this from the load balancer dashboard.
+  - For the routing actions, select **forward to target groups** and select the dev target group we created above.
+  - Make sure you select **(from ACM)** in the **Default SSL/TLS server certificate** section.
 
 ![image](https://github.com/user-attachments/assets/b572dac0-1955-4c70-8a47-492eeb56d8b1)
-- Notes:
-    - Select the http listener and change its settings to **redirect to URL** and **FULL URL**. With this setting, any request sent to http will be redirected to https. As you may know, the http is insecure.
-    - This is also why we added port 443 in our Load balancer security group.
+
+- **Notes:**
+  - Select the HTTP listener and change its settings to **redirect to URL** and **FULL URL**. With this setting, any request sent to HTTP will be redirected to HTTPS. As you may know, HTTP is insecure.
+  - This is also why we added port 443 in our Load balancer security group.
+
 ![image](https://github.com/user-attachments/assets/6f47b1d2-b557-4131-99ce-c7a0d596a93d)
 
-# Modify WP CONFIG file:
-We will add a code to the file that tells the server that we want to redirect from http to https.
+### Modify WP CONFIG File
 
-```
+We will add a code to the file that tells the server that we want to redirect from HTTP to HTTPS.
+
+```php
 /* SSL Settings */
 define('FORCE_SSL_ADMIN', true);
 
@@ -464,48 +476,60 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROT
   $_SERVER['HTTPS'] = '1';
 }
 ```
-- I tried to explain each line of code here:
 
-```
-define('FORCE_SSL_ADMIN', true);
-```
+- **Explanation of the code:**
 
-- Ensures all traffic to the WordPress admin area is encrypted over HTTPS, protecting sensitive data like login credentials from interception.
+  ```php
+  define('FORCE_SSL_ADMIN', true);
+  ```
 
-```
-if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
-  $_SERVER['HTTPS'] = '1';}
-```
+  - Ensures all traffic to the WordPress admin area is encrypted over HTTPS, protecting sensitive data like login credentials from interception.
 
-- Checks if the request was initially made over HTTPS before reaching the load balancer and sets the connection as secure within WordPress to avoid mixed content issues.
+  ```php
+  if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+    $_SERVER['HTTPS'] = '1';
+  }
+  ```
 
-- Notes:
-    - Connect to the EICE and run the following commands:
-        - ```sudo su```
-        - ```cd /var/www/html/```
-        - ```vi wp-config.php```
-        Then add the above code:
-![image](https://github.com/user-attachments/assets/65a8a90c-ad0a-4860-9518-4b073822efcf)
-        - Dont forget to also run: ```service httpd restart``` after you update your server, to restart the apache service.
+  - Checks if the request was initially made over HTTPS before reaching the load balancer and sets the connection as secure within WordPress to avoid mixed content issues.
 
-- Even though I only typed the domain name in the URL, the server directed me to the https port:
+- **Notes:**
+  - Connect to the EICE and run the following commands:
+
+    ```bash
+    sudo su
+    cd /var/www/html/
+    vi wp-config.php
+    ```
+
+  - Then add the above code:
+
+    ![image](https://github.com/user-attachments/assets/65a8a90c-ad0a-4860-9518-4b073822efcf)
+
+  - Don't forget to also run: `service httpd restart` after you update your server, to restart the Apache service.
+
+- Even though I only typed the domain name in the URL, the server directed me to the HTTPS port:
+
   ![image](https://github.com/user-attachments/assets/dc62f492-99c5-4827-b563-65fd71d27b8b)
 
-# 15- Availability and tolerance - Auto Scaling Group
-To increase availability, we will create an Auto Scaling group that will automatically add or remove servers as needed. This ensures that our application can handle varying traffic loads and remains resilient against failures. Every time a new EC2 instance is added, it will automatically mount the EFS, as it contains the WordPress code. For more details about EFS, refer to step #10.  This is the plan we will follow for this section:
-1- Terminate the EC2 that we created manually. We will do this because we want the auto scaling group to create our instance.
-2- Create shell script for the Launch templete.
-3- Create Launch Template with all neccessary EC2 configurations.
-4- Create Auto Scaling group.
+## 15. Availability and Tolerance - Auto Scaling Group
 
-# Termination of EC2:
-EC2-> instances-> Selecet the EC2 instance -> Instance state -> Terminate.
+To increase availability, we will create an Auto Scaling group that will automatically add or remove servers as needed. This ensures that our application can handle varying traffic loads and remains resilient against failures. Every time a new EC2 instance is added, it will automatically mount the EFS, as it contains the WordPress code. For more details about EFS, refer to step #10. This is the plan we will follow for this section:
 
-# Create Shell Script:
-Recall from the WordPress documentation URL in step #13, the requirments that we need for the installing of WordPress are: PHP version 7.4 or greater. MySQL version 8.0 or greater OR MariaDB version 10.5 or greater and HTTPS support.
-Therefore this shell script will be prepared with these dependencies. As well as the mounting to the EFS:
+1. Terminate the EC2 instance that we created manually. We will do this because we want the auto-scaling group to create our instance.
+2. Create a shell script for the Launch template.
+3. Create a Launch Template with all necessary EC2 configurations.
+4. Create an Auto Scaling group.
 
-```
+### Termination of EC2
+
+- **Steps:** EC2 -> Instances -> Select the EC2 instance -> Instance state -> Terminate.
+
+### Create Shell Script
+
+Recall from the WordPress documentation URL in step #13, the requirements for installing WordPress are: PHP version 7.4 or greater, MySQL version 8.0 or greater, OR MariaDB version 10.5 or greater, and HTTPS support. Therefore, this shell script will be prepared with these dependencies as well as the mounting to the EFS:
+
+```bash
 #!/bin/bash
 
 # update the software packages on the ec2 instance 
@@ -540,19 +564,19 @@ php-tokenizer
 
 # install the mysql version 8 community repository
 sudo wget https://dev.mysql.com/get/mysql80-community-release-el9-1.noarch.rpm 
-#
+
 # install the mysql server
 sudo dnf install -y mysql80-community-release-el9-1.noarch.rpm 
 sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
 sudo dnf repolist enabled | grep "mysql.*-community.*"
 sudo dnf install -y mysql-community-server 
-#
+
 # start and enable the mysql server
 sudo systemctl start mysqld
 sudo systemctl enable mysqld
 
 # environment variable
-EFS_DNS_NAME=fs-0573e48ddbfb740c3.efs.us-east-2.amazonaws.com
+EFS_DNS_NAME=
 
 # mount the efs to the html directory 
 echo "$EFS_DNS_NAME:/ /var/www/html nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" >> /etc/fstab
@@ -565,79 +589,111 @@ chown apache:apache -R /var/www/html
 sudo service httpd restart
 ```
 
-# Create Launch template:
-To launch the template: EC2 -> Launch template
-- Notes:
-    - Select the Auto Scaling guidance checkbox.
-    - Under the **Advanced details** section, in the User data box, paste your script.
-    - Dont forget to update the EFS DNS name in the script. You can find it in your EFS.
-![image](https://github.com/user-attachments/assets/fc849f2c-170c-44a7-89a2-32f1b99533a9)
+### Create Launch Template
 
-# Create Auto Scaling group:
-To create: EC2 -> Auto Scaling groups
-- Notes:
-    - Select the private web subnet AZ1 and AZ2.
-    - Dont forget to select the VPC that we created for the project.
-    - Select the **Turn on Elastic Load Balancing health checks** checkbox.
-    - Select the **Enable group metrics collection within CloudWatch** checkbox.
- 
+- **Steps:** EC2 -> Launch template
+
+- **Notes:**
+  - Select the **Auto Scaling guidance** checkbox.
+  - Under the **Advanced details** section, in the **User data** box, paste your script.
+
+- Don't forget to update the EFS DNS name in the script. You can find it in your EFS configuration.
+
+  ![image](https://github.com/user-attachments/assets/fc849f2c-170c-44a7-89a2-32f1b99533a9)
+
+### Create Auto Scaling Group
+
+- **Steps:** EC2 -> Auto Scaling groups
+
+- **Notes:**
+  - Select the private web subnet AZ1 and AZ2.
+  - Don't forget to select the VPC that we created for the project.
+  - Select the **Turn on Elastic Load Balancing health checks** checkbox.
+  - Select the **Enable group metrics collection within CloudWatch** checkbox.
+
   ![image](https://github.com/user-attachments/assets/585d6654-77bd-4f2d-89b6-9789e41fe379)
-    - As you can see in the above image, the desired capacity is the number of instances that we want to mantain in general, whereas for the scaling limits, this is basically boundry that we can set.
-  
-    - For the SNS notification, its optional but if you want to add it. Simply create a topic first then you should receive AWS email to confirm.   
+
+  - As you can see in the image above, the desired capacity is the number of instances that we want to maintain in general, whereas for the scaling limits, this sets the boundaries.
+  - For SNS notifications, it's optional, but if you want to add it, simply create a topic first, then you should receive an AWS email to confirm.
 
   ![image](https://github.com/user-attachments/assets/46bfc62e-ccc1-41b9-8123-f7988691fd8b)
-    - After we done creating the ASG, in the instances page we will see two EC2 instances that were created. This is because for the desired capacity we did choose to put 2.
 
-# Making sure the website works:
-To make sure the website works, we need to check few things:
+  - After creating the ASG, in the instances page, we will see two EC2 instances that were created. This is because we set the desired capacity to 2.
 
-1- EC2 instances are in the target group and both are healthy.
-![Screenshot 2024-08-04 073758](https://github.com/user-attachments/assets/e54f7aa4-4f13-4445-a2fd-fff499403a73)
+### Making Sure the Website Works
 
-2- You can access the website using the domain name.
-![Screenshot 2024-08-04 074051](https://github.com/user-attachments/assets/9d37971b-43b1-4993-90a0-de505e68f3b6)
+To ensure the website is functioning correctly, we need to check a few things:
 
-# Making sure the auto scaling group works:
-To test the ASG, we can simply terminate one EC2 instance. Since we sat the desired capacity to 2, when we terminate one instance, the auto scaling group should create another EC2 instance automatically. So lets test that:
+1. EC2 instances are in the target group, and both are healthy.
 
-- As you can see it works:
-![combined_image](https://github.com/user-attachments/assets/0114efe6-d601-4eef-b62a-cd2c5834410e)
+   ![Screenshot 2024-08-04 073758](https://github.com/user-attachments/assets/e54f7aa4-4f13-4445-a2fd-fff499403a73)
 
+2. You can access the website using the domain name.
 
-----------
+   ![Screenshot 2024-08-04 074051](https://github.com/user-attachments/assets/9d37971b-43b1-4993-90a0-de505e68f3b6)
 
-Currently the website works perfectly fine, and I will just add a WordPress templete to make the website somewhat presentable, although this is not related to the project..
+### Making Sure the Auto Scaling Group Works
+
+To test the ASG, we can simply terminate one EC2 instance. Since we set the desired capacity to 2, when we terminate one instance, the auto-scaling group should create another EC2 instance automatically. Let's test that:
+
+- As you can see, it works:
+
+  ![combined_image](https://github.com/user-attachments/assets/0114efe6-d601-4eef-b62a-cd2c5834410e)
+
+---
+
+Currently, the website works perfectly fine, and I will just add a WordPress template to make the website somewhat presentable, although this is not directly related to the project.
 
 ![image](https://github.com/user-attachments/assets/75e14db6-9cdd-4aa1-92de-9d944420c50f)
 
-----------
+---
 
-# Deleting the resources
+## Deleting the Resources
 
-- ASG: The reason behind deleting the ASG first, is to avoid automatically creating the instances. Also reminder that when you delete the ASG the EC2 instances that currently running will be removed too.
+- **ASG:** Delete the ASG first to avoid automatically creating instances. Also, note that deleting the ASG will remove the currently running EC2 instances.
+
   ![image](https://github.com/user-attachments/assets/e16d9bea-10c4-45f7-a396-5a1cea07b446)
-- ALB
+
+- **ALB (Application Load Balancer):**
+
   ![image](https://github.com/user-attachments/assets/77ea2c66-4ca2-4d2b-bf70-3326e2221a2e)
-- Target group
+
+- **Target Group:**
+
   ![image](https://github.com/user-attachments/assets/b5f54cbf-686d-4204-8c6b-e03fc1cd204c)
-- EFS
+
+- **EFS (Elastic File System):**
+
   ![image](https://github.com/user-attachments/assets/df1f7853-eba5-4233-ae20-f527cc1e4fc8)
-- RDS: Will take 5-10 minutes to delete.
+
+- **RDS:** This will take 5-10 minutes to delete.
+
   ![image](https://github.com/user-attachments/assets/bc2ef922-bd7c-42aa-ae62-965356a87ad9)
-- Subnets group
+
+- **Subnets Group:**
+
   ![image](https://github.com/user-attachments/assets/f7a4f9d3-9643-4906-b135-33efb3f26a98)
-- Nat Gateway
+
+- **NAT Gateway:**
+
   ![image](https://github.com/user-attachments/assets/38b5daa6-a5e0-422a-87d8-745a5d14340b)
-- Release the Elastic IP
+
+- **Release the Elastic IP:**
+
   ![image](https://github.com/user-attachments/assets/81b58f59-7f53-4e8c-bcc4-c04f337365ea)
-- EC2 Instance Endpoints
+
+- **EC2 Instance Endpoints:**
+
   ![image](https://github.com/user-attachments/assets/efda5296-9f2c-4ab7-8277-191de44441de)
-- Secuirty groups(DB, EFS, WEB-SERVER, EICE, ALB)
+
+- **Security Groups (DB, EFS, WEB-SERVER, EICE, ALB):**
+
   ![image](https://github.com/user-attachments/assets/3434bc44-ba33-400f-b004-7a081dd8a40d)
-- VPC
+
+- **VPC:**
+
   ![image](https://github.com/user-attachments/assets/0b57d99f-1cc5-423e-a46b-e50e3258ab21)
-- I will also delete the IAM user:
+
+- **IAM User:** I will also delete the IAM user.
+
   ![image](https://github.com/user-attachments/assets/40778292-4a09-479a-a233-75327f8a0e9d)
-
-
