@@ -1,7 +1,7 @@
 # Deployed-and-hosted-a-highly-available-WordPress-application-using-EC2-RDS-Route-53-ASG-and-VPC
 This file provides a comprehensive step-by-step walkthrough for deploying and hosting a highly available WordPress application using AWS services such as EC2, RDS, Route 53, Auto Scaling Groups (ASG), and Virtual Private Cloud (VPC). This guide includes detailed instructions, screenshots, and insights gained during the project to help others replicate the setup and understand the deployment process.
 
-For an introduction to the project and an overview of its main components, please visit the README.md file.
+For an introduction to the project and an overview of its main components, please visit the [README.md](./README.md) file.
 
 In the below steps, sometimes I typed some notes that I thought were useful when I was building this project...
 # Steps
