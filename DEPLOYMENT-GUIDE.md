@@ -3,226 +3,306 @@ This file provides a comprehensive step-by-step walkthrough for deploying and ho
 
 For an introduction to the project and an overview of its main components, please visit the [README.md](./README.md) file.
 
-In the below steps, sometimes I typed some notes that I thought were useful when I was building this project...
+Here's your text with improved clarity, consistent indentation and spacing, and corrected grammar:
+
+---
+
+In the steps below, I have included notes that I found useful while building this project.
+
 # Steps
 
-# 1- IAM user
-- Firstly I created an IAM user for myself, to enhance security. Its usually better to avoid using the root user account.
-- To access the IAM page, just type IAM in the search bar on the AWS console.
--  For the polices, the only policy that we need to attach to IAM account is the **AdministratorAccess** policy which will grants full access to all AWS services and resources.
+## 1. IAM User
 
-  - Now I can log in to the IAM account and work from there.
+- First, I created an IAM user for myself to enhance security. It is usually better to avoid using the root user account.
+- To access the IAM page, type **IAM** in the search bar on the AWS console.
+- For the policies, the only policy we need to attach to the IAM account is the **AdministratorAccess** policy, which grants full access to all AWS services and resources.
+- Once the IAM user is created, I can log in to the IAM account and work from there.
 
-# 2-  Generate Access Key for the IAM User
-- The access key is important. This is because the access key is used for programmatic access via the AWS CLI or API calls.
-- From the IAM page: Users -> Select the user -> Security credentials -> Create access key -> Command Line Interface (CLI).
-  - Currently we need to use the CLI this is why we select it.
+## 2. Generate Access Key for the IAM User
 
-# 3- Configure the access key
+- The access key is important because it is used for programmatic access via the AWS CLI or API calls.
+- From the IAM page: **Users -> Select the user -> Security credentials -> Create access key -> Command Line Interface (CLI)**.
+- We select CLI because we currently need to use the command line interface.
+
+## 3. Configure the Access Key
+
 ![Screenshot 2024-07-20 190621](https://github.com/user-attachments/assets/cf39b793-7bab-4fa9-9d15-e731ffa768b9)
-- To configure the access key that we just created, in the terminal:
-  - aws configure
-  - Then type the access key and the secret access key
-  - Some notes: 
-    - For the output format there are three different formats:
-        1- Table 2- JSON  3- text
-      The default is JSON, so by just pressing enter, the output is going to be in JSON format, and this is what we will do.
-    
-    - C:\Users\username\.aws\ is the path to find the credintals and configuration info that we just entered..
-   
-    - Its important to not share the acccess key or secret access key for security reasons. For this project, I did so because I will delete this IAM user and the access key before I publish the document.
 
-# 4- Testing the configuration
-I ran the command: aws iam get-user. (This command retrieves information about the specified IAM user, or if not specified it will give the information about this user). But I got an error.
+- To configure the access key that we just created, open the terminal and run:
+  - `aws configure`
+  - Enter the access key and the secret access key.
+  
+  - **Some notes:**
+    - For the output format, there are three different formats:
+      1. Table
+      2. JSON
+      3. Text
+    - The default is JSON, so by pressing Enter, the output will be in JSON format, which is what we will use.
+    - `C:\Users\username\.aws\` is the path to find the credentials and configuration information that we just entered.
+    - It is important not to share the access key or secret access key for security reasons. For this project, I will delete this IAM user and the access key before publishing the document.
+
+## 4. Testing the Configuration
+
+I ran the command: `aws iam get-user`. This command retrieves information about the specified IAM user, or if not specified, it provides information about the current user. However, I encountered an error.
+
 ![image](https://github.com/user-attachments/assets/e5de9b10-6d57-4bf4-b693-37e196099830)
 
- This error is because when I tried to be granular with giving permissions to the IAM-user(in the first step), I forgot to attach the IAMReadOnlyAccess policy, so I will do that now.
+Initially, I avoided using the **AdministratorAccess** policy to try a more granular permissions approach. However, I realized that this required multiple adjustments to identify the necessary policies, so I deleted all permissions and used **AdministratorAccess** for full access.
 
 ![image](https://github.com/user-attachments/assets/97f8c63d-cf10-4f9c-96c3-e14695cb4174)
-- Now after attaching the IAMReadOnlyAccess policy, we have read-only access to IAM resources. So when we try the "aws iam get-user" command it works as you can see above.
 
-# 5- Creating VPC
-- Select the region where you want to create the VPC, in my case its going to be us-east-2
-- Then in the search bar type VPC and enter -> Create VPC -> VPC only
-  - I selected VPC only, because I will customize the network layout, including specific subnets, route tables, and gateways. Otherwise I would select VPC and more. for the default configurations.
-- Settings used to create the VPC:
-  -  IPv4 CIDR manual input: 10.0.0.0/16. This mean the VPC can have IP addresses from 10.0.0.0 to 10.0.255.255
-  -  No IPv6 CIDR block
-  -  Tenancy: Default
-  -  Create VPC.
+- After attaching the **AdministratorAccess** policy, I had full access to AWS services, and the `aws iam get-user` command worked as expected.
 
-# 6- Enable DNS Host Name Setting in VPC & Create internet gateway
-- The benefits of enabling the DNS host name: a) easier to identify instances by name rather than by IP address. b) Instances with public IP addresses will have corresponding public DNS names, which can be used to access the instances over the internet.
-  - To enable: VPC -> Your VPCs -> select the vpc -> Edit VPC settings. And then select Enable DNS hostnames.
+## 5. Creating a VPC
+
+- Select the region where you want to create the VPC. In my case, it is **us-east-2**.
+- Then, in the search bar, type **VPC** and enter: **Create VPC -> VPC only**.
+  - I selected **VPC only** because I wanted to customize the network layout, including specific subnets, route tables, and gateways. Otherwise, I would select **VPC and more** for default configurations.
+
+- **Settings used to create the VPC:**
+  - **IPv4 CIDR manual input:** `10.0.0.0/16`. This means the VPC can have IP addresses from `10.0.0.0` to `10.0.255.255`.
+  - **No IPv6 CIDR block**
+  - **Tenancy:** Default
+  - **Create VPC**
+
+## 6. Enable DNS Hostname Setting in VPC & Create Internet Gateway
+
+- **Benefits of enabling the DNS hostname:**
+  - Easier to identify instances by name rather than by IP address.
+  - Instances with public IP addresses will have corresponding public DNS names, which can be used to access the instances over the Internet.
+
+  - To enable: **VPC -> Your VPCs -> select the VPC -> Edit VPC settings**, and then select **Enable DNS hostnames**.
     
-- Benefit of internet gateway: To enable instances (like EC2) in VPC to connect to the internet.
-  - To create the internet gateway: VPC -> Internet gateways -> Create internet gateway.
-    - After that select attach to VPC to attach it to the same VPC we created above.
-      ![Screenshot 2024-07-21 002137](https://github.com/user-attachments/assets/1736bc28-3ae6-47fc-aacc-b8ef61e1322b)
+- **Benefits of the Internet gateway:** To enable instances (like EC2) in the VPC to connect to the Internet.
 
-    - Note, for each VPC, you can only attach one Internet gateway.
+  - To create the Internet gateway: **VPC -> Internet gateways -> Create Internet gateway**.
+    - After that, select **Attach to VPC** to attach it to the same VPC we created above.
 
-# 7- Subnets
-- Creating subnets within a VPC allows to segment the network into public and private subnets.
-  - Public subnet: We store things that will likely be accessed from the internet like the EC2 instances. Also NAT Gateway, to allow instances in private subnets to access the internet while remaining inaccessible from the internet
-  - Private subnet: Things that should not be accessed from the internet. For example, databases (RDS).
+![Screenshot 2024-07-21 002137](https://github.com/user-attachments/assets/1736bc28-3ae6-47fc-aacc-b8ef61e1322b)
 
-  # Creating AZ1 subnets:
-  - To create the subnets for AZ1: Subnets -> Create subnet
-  ![image](https://github.com/user-attachments/assets/b8ca49ea-d767-48a7-8014-bada1768c915)
-  - Notes:
-    - Dont forget to select the same AZ when creating the subnets.
-    - Avoid overlapping the subnets IP ranges.
-  # Creating AZ2 subnets:
-  ![image](https://github.com/user-attachments/assets/2a2037e8-bba1-4c64-bfc1-d4192a742f27)
-  # Auto-Assign IP in Public Subnets:
-  When we enable the auto-assing IP for each public subnet in the VPC, each resource we launch in the subnet will automatically assigned a public IP. Which  simplifies the process of ensuring instances have internet access.
-  - To enable: VPC -> Pick the public subnet -> from actions select Edit subnet -> Enable auto-assign public IPv4 address.
-  - I did that for both public subnets.
-  # Public Subnets Route Table:
-  To make the public subnets public, we need to create route tables that have a route to the internet.
-  - To create the route table: VPC -> Route tables -> Create route table
-  - Then you can select the route table and click edit routes to add the route to the internet which is 0.0.0.0/0
-      - Notes:
-          - For the destination: 0.0.0.0/0 (Internet route). And for the target: Your IGW.
-          - Now any subnet will be public, when we attach it to this route table.
-  # Private subnets:
-  When you dont explicitly associate a subnet to a route table, this subnet will automatically be associated with the main route table. This main route table is local. In other words, a subnet is private by default since its associated with this local & main route table.
+- **Note:** For each VPC, you can only attach one Internet gateway.
 
-    - As you can see in the below image, we have two route tables even though we only created one...
-  ![image](https://github.com/user-attachments/assets/fb48bf35-53e3-49ca-b9c1-52694a70bc8d)
+## 7. Subnets
 
-    - In the **subnets without explicit associations** you can see all the subnets that we didnt associate with a route table are associated with this main route table:
-  ![image](https://github.com/user-attachments/assets/2d34907c-0650-45d9-b117-4dd32d400ad9)
+- Creating subnets within a VPC allows for segmentation of the network into public and private subnets.
+  - **Public subnet:** Used for resources that need to be accessed from the Internet, such as EC2 instances. It also contains the NAT Gateway to allow instances in private subnets to access the Internet while remaining inaccessible from the Internet.
+  - **Private subnet:** Used for resources that should not be accessed from the Internet, such as databases (RDS).
 
- # Setting up the NAT Gateway & Route table for the private subnets
-  Setting up a nat gateway is important to allow instances in private subnets to access the internet while remaining inaccessible from the internet. So we going to 
- put the NAT Gateway in the public subnet as discussed earlier. Then we will create a route table that connect the private subnets to this NAT Gateway.
- - To set it up: VPC -> NAT gateways -> Create NAT gateway. Connectivity type should be public, and Allocate Elastic IP.
- - After creating the NAT Gateway, create a routing table in the edit routes add the destination and target, this time the target is the NAT gateway we just created:
-   ![image](https://github.com/user-attachments/assets/323ef060-5a91-4340-a0a4-a8d020a8937c)
+### Creating AZ1 Subnets:
 
- - Notes:
-     - The NAT Gateway is always placed in the public subnet.
-     - Its best practice to create a NAT Gateway for each AZ, however for this project and to minimize cost, I only created one for all subnets.
-     - Dont forget to associate the private subnets to the route table we just created.
+- To create the subnets for AZ1: **Subnets -> Create subnet**.
 
-# 8- Security Groups
-Security groups are the firewalls for our VPC. We will create 5 different security groups as follows:
-- Security group for the load balancer
-    - For http and https - ports 80 and 443.
-- Security group for the EC2
-    - Traffic coming from the CIDR of the VPC - port 22.
-- Security group for the web server
-    - http and https from the load balancer security group only.
-    - ssh (port 22) only if its coming from the EC2 security group.
-- Security group for the database (the RDS)
-    - Traffic from port 3306 if its coming from the web server.
-- Security group for EFS
-    - Traffic from port 2049 only if its coming from the web server.
-    - Traffic from port 22 if its coming from the EC2 endpoint security group. 
+![image](https://github.com/user-attachments/assets/b8ca49ea-d767-48a7-8014-bada1768c915)
+
+- **Notes:**
+  - Don't forget to select the same AZ when creating the subnets.
+  - Avoid overlapping the subnets' IP ranges.
+
+### Creating AZ2 Subnets:
+
+![image](https://github.com/user-attachments/assets/2a2037e8-bba1-4c64-bfc1-d4192a742f27)
+
+### Auto-Assign IP in Public Subnets:
+
+When we enable auto-assign IP for each public subnet in the VPC, each resource launched in the subnet will automatically be assigned a public IP. This simplifies the process of ensuring instances have Internet access.
+
+- To enable: **VPC -> Pick the public subnet -> Actions -> Edit subnet -> Enable auto-assign public IPv4 address**.
+- I did this for both public subnets.
+
+### Public Subnets Route Table:
+
+To make the public subnets public, we need to create route tables that have a route to the Internet.
+
+- To create the route table: **VPC -> Route tables -> Create route table**.
+- Select the route table and click **Edit routes** to add the route to the Internet, which is `0.0.0.0/0`.
+
+  - **Notes:**
+    - For the destination: `0.0.0.0/0` (Internet route). For the target: Your IGW (Internet Gateway).
+    - Any subnet attached to this route table will be public.
+
+### Private Subnets:
+
+When you don't explicitly associate a subnet with a route table, it automatically associates with the main route table, which is local. This means a subnet is private by default since it's associated with the main route table.
+
+- As shown in the image below, we have two route tables even though we only created one.
+
+![image](https://github.com/user-attachments/assets/fb48bf35-53e3-49ca-b9c1-52694a70bc8d)
+
+- In the **subnets without explicit associations**, you can see all the subnets that aren't associated with a route table are associated with this main route table.
+
+![image](https://github.com/user-attachments/assets/2d34907c-0650-45d9-b117-4dd32d400ad9)
+
+### Setting up the NAT Gateway & Route Table for Private Subnets:
+
+Setting up a NAT Gateway is important to allow instances in private subnets to access the Internet while remaining inaccessible from the Internet. We'll place the NAT Gateway in the public subnet as discussed earlier. Then, we'll create a route table that connects the private subnets to this NAT Gateway.
+
+- To set it up: **VPC -> NAT gateways -> Create NAT gateway**. Connectivity type should be public, and allocate an Elastic IP.
+- After creating the NAT Gateway, create a routing table and, in **Edit routes**, add the destination and target; this time, the target is the NAT gateway we just created.
+
+![image](https://github.com/user-attachments/assets/323ef060-5a91-4340-a0a4-a8d020a8937c)
+
+- **Notes:**
+  - The NAT Gateway is always placed in the public subnet.
+  - It's best practice to create a NAT Gateway for each AZ. However, for this project and to minimize costs, I only created one for all subnets.
+  - Don't forget to associate the private subnets with the route table we just created.
+
+## 8. Security Groups
+
+Security groups act as firewalls for our VPC. We will create five different security groups as follows:
+
+- **Security group for the load balancer:**
+  - For HTTP and HTTPS - ports 80 and 443.
+
+- **Security group for the EC2:**
+  - Traffic coming from the CIDR of the VPC - port 22.
+
+- **Security group for the web server:**
+  - HTTP and HTTPS from the load balancer security group only.
+  - SSH (port 22) only if it's coming from the EC2 security group.
+
+- **Security group for the database (the RDS):**
+  - Traffic from port 3306 if it's coming from the web server.
+
+- **Security group for EFS:**
+  - Traffic from port 2049 only if it's coming from the web server.
+  - Traffic from port 22 if it's coming from the EC2 endpoint security group.
 
 ![image](https://github.com/user-attachments/assets/55c11039-410a-4d60-8e57-27025ff33262)
 
-# 9- Create the EC2 Instance Connect Endpoint
+## 9. Create the EC2 Instance Connect Endpoint
+
 With an EC2 Instance Connect Endpoint (EIC), you can connect to instances within your VPC without needing SSH, a public IP address, or a bastion host.
 
 ![image](https://github.com/user-attachments/assets/74dfadd6-2322-4cf8-922d-e55237b43c9f)
-- Note: Its important to place this endpoint in a private subnet.
 
-  # Launch an EC2 Instance - To test whether we can connect to it through the EICE
-  - Notes:
-      - Select proceed without key pair, since we want to test the EICE.
-      - Place it in any private subnet, similar to the EICE.
-      - For the security group, select the Web server security group we created in step 8.
-  # To test:
-  - Select the EC2 instance we just created -> Connect -> Connect using EC2 Instance Connect Endpoint. And select the EICE and connect.
-      - I got an error:
+- **Note:** It's important to place this endpoint in a private subnet.
+
+### Launch an EC2 Instance - To test connectivity through the EICE
+
+- **Notes:**
+  - Select "proceed without key pair" since we want to test the EICE.
+  - Place the instance in any private subnet, similar to the EICE.
+  - For the security group, select the Web server security group we created in step 8.
+
+### To Test:
+
+- Select the EC2 instance we just created -> Connect -> Connect using EC2 Instance Connect Endpoint. Then select the EICE and connect.
+  
+  - I encountered an error:
+  
     ![image](https://github.com/user-attachments/assets/92023327-52f5-4bcd-9f94-f2576df7daed)
 
-  - From the error message, it was clear that the problem was related to the security group configuration that we attached to it which is the EICE security group. To resolve this, I decided to inspect the security group settings.
-  - It turned out that the problem was the outbound rule I created, for the CIDR range I accidentally used the Ip range: 0.0.0.0/16 instead of 10.0.0.0/16(The Ip I should use is the one I created my VPC with, you can find that in the column IPv4 CIDR in your VPC):
+  - From the error message, it was clear that the problem was related to the security group configuration attached to it, which was the EICE security group. To resolve this, I inspected the security group settings.
+  
+  - The issue was with the outbound rule I created; I accidentally used the IP range `0.0.0.0/16` instead of `10.0.0.0/16` (the IP I should use is the one I created my VPC with, found in the IPv4 CIDR column in your VPC):
+  
     ![image](https://github.com/user-attachments/assets/d18b8c73-8383-4328-8956-4afd19e62ffd)
 
-  - Now after we solved the problem, we can run the following command to test: sudo yum update -y
-    - The output means, there is no package to install currently. This mean the test was successful.
+  - After resolving the issue, we can run the following command to test: `sudo yum update -y`
+    
+    - The output indicates there is no package to install currently. This means the test was successful.
+    
     ![image](https://github.com/user-attachments/assets/790b952d-d9c6-47f3-b371-a8221b55291f)
 
-  # Test the EC2 instance Using AWS CLI
-  - To test use this command in the terminal: aws ec2-instance-connect ssh --instance-id <Put the instance Id>
-    - The test was successful too:
+### Test the EC2 Instance Using AWS CLI
+
+- To test, use this command in the terminal: `aws ec2-instance-connect ssh --instance-id <Put the instance Id>`
+  
+  - The test was successful too:
+  
     ![image](https://github.com/user-attachments/assets/d364c55e-6678-4444-9824-2f3de7ef291c)
 
-  - Using the command: sudo yum install nano -y we can test whether we can download packages in the EC2 instance or not. This command will install the text editor nano.
-    - The test was successful:
+- Using the command: `sudo yum install nano -y`, we can test whether we can download packages on the EC2 instance. This command will install the text editor `nano`.
+  
+  - The test was successful:
+  
     ![image](https://github.com/user-attachments/assets/fd64c473-460c-45d5-8db3-0325f7b4012f)
-  - We can also test if we can download the Apache server: sudo yum install httpd -y
 
-  - ***Now we have confirmed that we can SSH to our EC2 instance using the EICE from both the managment console and from the CLI command.***
-  - The last thing we need to do here, is to terminate the EC2 after we done with the testing...
+- We can also test if we can download the Apache server: `sudo yum install httpd -y`
 
-# 10- Create EFS
-EFS Allows multiple EC2 instances to access the file system concurrently, making it ideal for scenarios that require shared storage, such as web serving, which is our use case here. In this case if we used EBS instead, any change we make to one EC2 instance would not be reflected in the other EC2 instances. leading to inconsistency in the shared data.
+- **Conclusion:** We have confirmed that we can SSH into our EC2 instance using the EICE from both the management console and the CLI command.
 
-This is why we will store our wordpress code in the EFS, so that any change will be made to it, will be reflected in all EC2 instances.
+- The last step here is to terminate the EC2 instance after we're done with testing.
 
-- Notes:
-    - Store the mount in the private data subnet for both AZ.
-    - For the mount, make sure to select the EFS security group.
-    - The mount target is essentially setting up a gateway for the EC2 instances to connect to the EFS. In our case, we will mount this EFS to our servers.
- 
-# 11- Create RDS Instance - In the private data subnet
+## 10. Create EFS
 
- # Subnet Group
-    Before we create the RDS, we want to create the subnet group. This way we can specifiy which subnet we want to create our database in.
-    - Notes:
-        - Under **add subnet** in the subnet group creation process, we can specifiy the subnets that we want to create our DB in. We will 
-     select the private data subnet.
-        ![image](https://github.com/user-attachments/assets/226944ba-7829-44b3-9ee4-a9787b4d82f4)
- # RDS
-    - Notes:
-        - Save the master name and password somewhere before continuing.
-    ![image](https://github.com/user-attachments/assets/bb60d32c-2836-4d45-a2a6-ec96a6b381b0)
+EFS allows multiple EC2 instances to access the file system concurrently, making it ideal for scenarios that require shared storage, such as web serving, which is our use case here. If we used EBS instead, any change we make to one EC2 instance would not be reflected in the other EC2 instances, leading to inconsistency in the shared data.
 
-# 12- Load Balancer
-We will place our server (EC2 instance) in the private subnet to increase security. Therefore, we need to create a target group to conncet the load balancer to this EC2 instance. 
-So we will do these steps:
-- EC2 instance placed in private subnet.
-- Target group and register the EC2 instance into it.
+This is why we will store our WordPress code in the EFS so that any change made to it will be reflected in all EC2 instances.
+
+- **Notes:**
+  - Store the mount in the private data subnet for both AZs.
+  - For the mount, ensure to select the EFS security group.
+  - The mount target essentially sets up a gateway for the EC2 instances to connect to the EFS. In our case, we will mount this EFS to our servers.
+
+## 11. Create RDS Instance - In the Private Data Subnet
+
+### Subnet Group
+
+Before we create the RDS, we need to create the subnet group. This way, we can specify which subnet we want to create our database in.
+
+- **Notes:**
+  - Under **add subnet** in the subnet group creation process, we can specify the subnets where we want to create our DB. We will select the private data subnet.
+
+    ![image](https://github.com/user-attachments/assets/226944ba-7829-44b3-9ee4-a9787b4d82f4)
+
+### RDS
+
+- **Notes:**
+  - Save the master name and password somewhere before continuing.
+
+  ![image](https://github.com/user-attachments/assets/bb60d32c-2836-4d45-a2a6-ec96a6b381b0)
+
+## 12. Load Balancer
+
+We will place our server (EC2 instance) in the private subnet to increase security. Therefore, we need to create a target group to connect the load balancer to this EC2 instance. We will follow these steps:
+
+- Place the EC2 instance in the private subnet.
+- Create a target group and register the EC2 instance into it.
 - Create the application load balancer in the public subnet.
 - Configure the application load balancer to use the target group.
-# Create Target group:
+
+### Create Target Group
+
 ![image](https://github.com/user-attachments/assets/bc557252-2a87-44bc-bee9-64f6be0b901e)
 
-# Create EC2 instance:
-- Notes:
-    - We will place this EC2 instance in the web private subnet AZ1, its also possible to place it in the web private subnet AZ2.
-    - Since we are using the EC2 endpoint (that we created in step #9), we dont need a key pair when creating the EC2.
-    - Make sure to select the correct security group (the web server security group).
- ![image](https://github.com/user-attachments/assets/936eca3a-8689-446e-a11a-9ecec3eecad5)
+### Create EC2 Instance
 
-# Register EC2 instance to the Target Group:
-- To do this: EC2 -> Target groups(select the target group we just created) -> Register targets(select the EC2 instance).
-![image](https://github.com/user-attachments/assets/50927d44-369d-4bc5-a644-557ecc1f4a26)
+- **Notes:**
+  - Place this EC2 instance in the web private subnet AZ1. It's also possible to place it in the web private subnet AZ2.
+  - Since we are using the EC2 endpoint (created in step #9), we don't need a key pair when creating the EC2.
+  - Ensure to select the correct security group (the web server security group).
 
-# Create the Application Load Balancer:
-- From: EC2 -> Load balancers -> ALB
-- Notes:
-    - ALBs are designed to handle HTTP and HTTPS traffic, which is ideal for our web application
-    - In the Network mapping section, make sure to select the public subnet, an ALB is always asked to have the reach to a public subnet.
-    - Select the ALB security group we created.
-![image](https://github.com/user-attachments/assets/594c49bd-4b47-44ec-a8fb-10fa29c4c4a0)
+  ![image](https://github.com/user-attachments/assets/936eca3a-8689-446e-a11a-9ecec3eecad5)
 
-# 13- Installing a Website on an EC2 Instance
-In order to install any application in your server, you first need to find the correct documentation that gives you the installation steps and commands that you will need to run. In our case I made a google search to find these links:
-- The installation proccess with the specific commands I will need:
-https://docs.aws.amazon.com/linux/al2023/ug/hosting-wordpress-aml-2023.html
-- Wordpress requirements:
-https://wordpress.org/about/requirements/
+### Register EC2 Instance to the Target Group
 
-# Install Wordpress:
+- To do this: Navigate to **EC2 -> Target groups** (select the target group we just created) -> Register targets (select the EC2 instance).
 
-# Setup WordPress on Amazon Linux 2023 (AL2023)
+  ![image](https://github.com/user-attachments/assets/50927d44-369d-4bc5-a644-557ecc1f4a26)
+
+### Create the Application Load Balancer
+
+- From: **EC2 -> Load balancers -> ALB**
+- **Notes:**
+  - ALBs are designed to handle HTTP and HTTPS traffic, which is ideal for our web application.
+  - In the Network mapping section, ensure to select the public subnet. An ALB always needs access to a public subnet.
+  - Select the ALB security group we created.
+
+  ![image](https://github.com/user-attachments/assets/594c49bd-4b47-44ec-a8fb-10fa29c4c4a0)
+
+## 13. Installing a Website on an EC2 Instance
+
+To install any application on your server, you first need to find the correct documentation that provides the installation steps and commands required. In our case, I performed a Google search to find these links:
+
+- The installation process with the specific commands needed:
+  - [AWS Documentation for WordPress on Amazon Linux 2023](https://docs.aws.amazon.com/linux/al2023/ug/hosting-wordpress-aml-2023.html)
+- WordPress requirements:
+  - [WordPress Requirements](https://wordpress.org/about/requirements/)
+
+### Install WordPress
+
+#### Setup WordPress on Amazon Linux 2023 (AL2023)
 
 ```sh
 # Switch to root user
@@ -281,27 +361,45 @@ sudo nano /var/www/html/wp-config.php
 sudo systemctl restart httpd
 ```
 
-- Notes:
-    - Like we did in step #9, connect to the EC2 using the EICE, and run each command.
-    - For  ```EFS_DNS_NAME=``` copy your EFS DNS name and paste it after the ```=```.
-    - After running ```sudo nano /var/www/html/wp-config.php``` you will have to fill in your information:
-```
-define('DB_NAME', 'wordpress_db');
-define('DB_USER', 'wordpress_user');
-define('DB_PASSWORD', 'password');
-define('DB_HOST', 'localhost');
-```
-    - From: EC2 -> Target groups -> Select your Target Group -> Then check that your Target group is healthy:
-    
+- **Notes:**
+  - Like we did in step #9, connect to the EC2 using the EICE, and run each command.
+  - For `EFS_DNS_NAME=`, copy your EFS DNS name and paste it after the `=`.
+  - After running `sudo nano /var/www/html/wp-config.php`, you will have to fill in your information:
+
+  ```php
+  define('DB_NAME', 'wordpress_db');
+  define('DB_USER', 'wordpress_user');
+  define('DB_PASSWORD', 'password');
+  define('DB_HOST', 'localhost');
+  ```
+
+  - From: **EC2 -> Target groups -> Select your Target Group -> Then check that your Target group is healthy:**
+
     ![image](https://github.com/user-attachments/assets/15fb2261-6985-48a6-b18a-0a5a7cf2ba2e)
 
+- **Notes:**
 
-# Open Wordpress:
-    - From the Load balancer details, copy your DNS name and paste it in new browse page:
-    
-    ![image](https://github.com/user-attachments/assets/5f565819-4216-4db8-bb69-c7f191cb1749)
-    - After Signning in:
-    ![image](https://github.com/user-attachments/assets/89b01f92-a307-42e1-8690-a5066fb8beaa)
+- Initially, the target group wasn't healthy for me, so I did the following to resolve the issue:
+  - If you encounter an unhealthy target check with a 302 error, it might be due to the health check path being incorrectly set.
+
+  - **Solution:** 
+    1. Go to the target groups page -> Health checks -> Edit the path.
+    2. Copy and paste this into the path: `/wp-admin/install.php`.
+    3. Save the changes. It will take between 1-5 minutes for the health check to update.
+
+  - **Explanation:** The health check was initially set to the root path (`/`), which caused a 302 redirect to `/wp-admin/install.php` because WordPress detected that the setup was not yet complete (you first need to complete an installation form to use Wordpress). By changing the health check path to `/wp-admin/install.php`, the load balancer could correctly verify the instance's health by directly accessing the installation page. 
+
+  - If this solution doesn't resolve the issue, you may have a problem with your routing configuration or security groups. Double-check your settings to ensure that all configurations are correct.
+
+### Open WordPress:
+
+- From the Load balancer details, copy your DNS name and paste it in a new browser page:
+
+  ![image](https://github.com/user-attachments/assets/5f565819-4216-4db8-bb69-c7f191cb1749)
+
+- After signing in:
+
+  ![image](https://github.com/user-attachments/assets/89b01f92-a307-42e1-8690-a5066fb8beaa)
 
 # 14- DNS Configuration
 To Start the DNS configuration, we will first need to register our domain name in route 53.
