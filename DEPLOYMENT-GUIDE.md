@@ -1,9 +1,16 @@
 # Deployed-and-hosted-a-highly-available-WordPress-application-using-EC2-RDS-Route-53-ASG-and-VPC
 This file provides a comprehensive step-by-step walkthrough for deploying and hosting a highly available WordPress application using AWS services such as EC2, RDS, Route 53, Auto Scaling Groups (ASG), and Virtual Private Cloud (VPC). This guide includes detailed instructions, screenshots, and insights gained during the project to help others replicate the setup and understand the deployment process.
 
-For an introduction to the project and an overview of its main components, please visit the [README.md](./README.md) file.
+## Objectives and Goals
 
-Here's your text with improved clarity, consistent indentation and spacing, and corrected grammar:
+The primary goal of this project was to gain practical experience and hands-on knowledge in deploying and managing applications using AWS cloud services. Specifically, the objectives included:
+
+- Learning to set up and configure AWS resources such as EC2, RDS, VPC, and IAM.
+- Understanding best practices for deploying a highly available and scalable WordPress application.
+- Gaining familiarity with using infrastructure as code tools and automation scripts.
+- Enhancing knowledge of security measures and DNS management in the cloud.
+
+For an introduction to the project and an overview of its main components, please visit the [README.md](./README.md) file.
 
 ---
 
@@ -377,7 +384,7 @@ sudo systemctl restart httpd
 
     ![image](https://github.com/user-attachments/assets/15fb2261-6985-48a6-b18a-0a5a7cf2ba2e)
 
-- **Notes:**
+- **Note:**
 
 - Initially, the target group wasn't healthy for me, so I did the following to resolve the issue:
   - If you encounter an unhealthy target check with a 302 error, it might be due to the health check path being incorrectly set.
@@ -387,7 +394,7 @@ sudo systemctl restart httpd
     2. Copy and paste this into the path: `/wp-admin/install.php`.
     3. Save the changes. It will take between 1-5 minutes for the health check to update.
 
-  - **Explanation:** The health check was initially set to the root path (`/`), which caused a 302 redirect to `/wp-admin/install.php` because WordPress detected that the setup was not yet complete (you first need to complete an installation form to use Wordpress). By changing the health check path to `/wp-admin/install.php`, the load balancer could correctly verify the instance's health by directly accessing the installation page. 
+  - The health check was initially set to the root path (`/`), which caused a 302 redirect to `/wp-admin/install.php` because WordPress detected that the setup was not yet complete (you first need to complete an installation form to use Wordpress). By changing the health check path to `/wp-admin/install.php`, the load balancer could correctly verify the instance's health by directly accessing the installation page. 
 
   - If this solution doesn't resolve the issue, you may have a problem with your routing configuration or security groups. Double-check your settings to ensure that all configurations are correct.
 
