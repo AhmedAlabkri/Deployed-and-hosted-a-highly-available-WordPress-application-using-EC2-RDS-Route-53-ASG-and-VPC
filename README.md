@@ -27,7 +27,8 @@ The primary goal of this project is to host a WordPress website on AWS, utilizin
 
 Below is the architecture diagram of the project, which illustrates the three-tier setup on AWS:
 
-![WordPressApplication drawio](https://github.com/user-attachments/assets/c556ee8b-78b5-4bcb-afdb-2b78954cd726)
+
+![WordPressApplication](https://github.com/user-attachments/assets/dc12a3e6-da91-44b0-975e-272e9d813234)
 
 ## Deployment Steps
 
